@@ -1,4 +1,4 @@
-from app import CONFIG
+from loadconf import CONFIG
 
 
 def setup_pins():

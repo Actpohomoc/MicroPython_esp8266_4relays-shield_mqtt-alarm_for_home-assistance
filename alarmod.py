@@ -1,4 +1,4 @@
-from app import CONFIG, FUSED_VALUES
+from loadconf import CONFIG, FUSED_VALUES
 from publish import publish_state, publish_state_fused, publish_alarm, publish_sensor_alarm
 from switchs import switch_on, switch_off
 from utime import time
@@ -19,14 +19,12 @@ def check_for_alarm(nr):
             CONFIG.sensor_value[nr - 1] = current_value  # remember current state
             # state alarms and switches 1 and 2 - cover and door lock
             if not CONFIG.need_reconnect:
-                try:
-                    publish_sensor_alarm(current_value, nr)
-                    publish_state(nr)  # cover switch send signal that is open 1->1 2->2 switch !!!!
-                except Exception as e:
-                    CONFIG.check_for_keyboard_interrupt(e)
+                publish_sensor_alarm(current_value, nr)
+                publish_state(nr)  # cover switch send signal that is open 1->1 2->2 switch !!!!
+
             #
             if current_value == 1:
-                if CONFIG.curr_house_alarm == "DISARM" or CONFIG.curr_house_alarm == "":
+                if CONFIG.curr_house_alarm == "DISARM":  # or CONFIG.curr_house_alarm == "":
                     pass
                 else:
                     turn_alarm_on()
@@ -50,7 +48,8 @@ def turn_alarm_on():
         turn_main_alarm_horn(True)
     #
     turn_small_alarm_horn(True)
-    publish_alarm(b'triggered')
+    if not CONFIG.need_reconnect:
+        publish_alarm(b'triggered')
 
 
 def turn_alarm_off(new_alarm_state=None):
@@ -65,7 +64,8 @@ def turn_alarm_off(new_alarm_state=None):
     if new_alarm_state is not None:  # from callback function
         CONFIG.curr_house_alarm = new_alarm_state  # we set new alarm state to current
     #
-    publish_alarm(CONFIG.arm[CONFIG.curr_house_alarm])
+    if not CONFIG.need_reconnect:
+        publish_alarm(CONFIG.arm[CONFIG.curr_house_alarm])
 
 
 def turn_main_alarm_horn(on_off):
@@ -73,13 +73,15 @@ def turn_main_alarm_horn(on_off):
         switch_on(4)
     else:
         switch_off(4)
-    publish_state(4)
+    if not CONFIG.need_reconnect:
+        publish_state(4)
     #
     fused_values = CONFIG.info[FUSED_VALUES]
     for nch in fused_values:
         if nch[0] == '4':
             fused_values[nch] = on_off
-    publish_state_fused('41', '42')
+    if not CONFIG.need_reconnect:
+        publish_state_fused('41', '42')
 
 
 def turn_small_alarm_horn(on_off):
@@ -87,13 +89,15 @@ def turn_small_alarm_horn(on_off):
         switch_on(3)
     else:
         switch_off(3)
-    publish_state(3)
+    if not CONFIG.need_reconnect:
+        publish_state(3)
 
 
 def check_empty_curr_house_alarm():
     if CONFIG.curr_house_alarm == "":  # we need to set up correct current state
         CONFIG.curr_house_alarm = "ARM_HOME"  # default
-        publish_alarm(CONFIG.arm[CONFIG.curr_house_alarm])
+        if not CONFIG.need_reconnect:
+            publish_alarm(CONFIG.arm[CONFIG.curr_house_alarm])
 
 
 def check_any_horn_activated_to_long():
@@ -111,4 +115,4 @@ def check_any_horn_activated_to_long():
                         try:
                             publish_state(3+i)
                         except Exception as e:
-                            CONFIG.check_for_keyboard_interrupt(e)
+                            CONFIG.check_for_keyboard_interrupt(e, 'check_any_horn_activated_to_long')

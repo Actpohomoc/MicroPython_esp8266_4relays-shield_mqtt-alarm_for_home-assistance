@@ -6,6 +6,8 @@ import ntptime
 import sys
 from umqtt.simple import MQTTClient
 
+
+FUSED_VALUES = 'fused_values'
 ntptime.NTP_DELTA -= 7200  # current time zone
 
 
@@ -23,6 +25,7 @@ class Config:
             self.port = conf['port']
             self.user = conf['user']
             self.password = conf['password']
+            self.keepalive = conf['keepalive']
             # alarm topic
             self.max_sensor_count = conf['max_sensor_count']
             # current running values info
@@ -62,7 +65,7 @@ class Config:
             self.alarm_home_trig_time = conf['alarm_home_trig_time']
             self.curr_house_alarm = ""
             self.time_last_set = 0
-            self.debug = True
+            self.debug = False
             self.client = None
             self.need_reconnect = True
         except Exception:
@@ -95,7 +98,7 @@ class Config:
 
     def client_init(self):
         """init mqtt client"""
-        self.client = MQTTClient(self.client_id, self.broker, self.port, self.user, self.password, 120)
+        self.client = MQTTClient(self.client_id, self.broker, self.port, self.user, self.password, self.keepalive)
 
     def client_disconnect(self):
         try:
@@ -103,10 +106,20 @@ class Config:
         except:
             pass
 
-    def check_for_keyboard_interrupt(self, e):
+    def check_for_keyboard_interrupt(self, e, t='-'):
         """ handle the KeyboardInterrupt all others need to reconnect mqtt"""
         if e == KeyboardInterrupt:
             self.client_disconnect()
             self.need_reconnect = True
             return True
+#        elif e == OSError:
+#            print('OSError ', OSError)
+        #
+        else:
+            print('e:{} {}'.format(t, e))
+        self.need_reconnect = True
         return False
+
+
+# load new object that will imported in all modules
+CONFIG = Config()

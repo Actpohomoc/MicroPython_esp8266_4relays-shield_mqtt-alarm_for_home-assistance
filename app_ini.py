@@ -17,7 +17,7 @@ def load_config(conf_ini, conf_default=None):
         print("Load conf from " + conf_ini)
     except (OSError, ValueError):
         if conf_default is not None:
-            print("Couldn't load " + conf_ini + ", loading default")
+            print("Can't load {} load default".format(conf_ini))
             save_default_ini(conf_ini, conf_default)
             return conf_default
         else:

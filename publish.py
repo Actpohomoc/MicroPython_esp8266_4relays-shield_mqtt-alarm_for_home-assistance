@@ -1,4 +1,4 @@
-from app import CONFIG, FUSED_VALUES
+from loadconf import CONFIG, FUSED_VALUES
 from topics import topic_name, get_state_topic, get_datetime_topic, get_alarm_topic, get_sensor_alarm_topic, \
     get_sensor_alarm_datetime_topic, get_alarm_datetime_topic, get_debug_state_topic
 import ujson
@@ -69,7 +69,10 @@ def publish_debug_info(gc):
            'free': str(gc.mem_free()).encode("ascii"), 'datetime': CONFIG.curr_datetime}
     res = ujson.dumps(res)
     topic = topic_name(b"sensor", b"memory")
-    CONFIG.client.publish(topic, res, True)
+    try:
+        CONFIG.client.publish(topic, res, True)
+    except Exception as e:
+        CONFIG.check_for_keyboard_interrupt(e)
     print("memory: {}".format(res))
 
 

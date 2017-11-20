@@ -1,6 +1,6 @@
-from alarmod import turn_alarm_off
 from utime import sleep
-from app import CONFIG, FUSED_VALUES
+from loadconf import CONFIG, FUSED_VALUES
+from alarmod import turn_alarm_off
 from publish import publish_alarm, publish_state, publish_state_fused, publish_debug_state
 from switchs import switch_on, switch_off
 
