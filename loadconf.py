@@ -5,7 +5,7 @@ import utime
 import ntptime
 import sys
 from umqtt.simple import MQTTClient
-from callbck import callback
+
 
 FUSED_VALUES = 'fused_values'
 ntptime.NTP_DELTA -= 7200  # current time zone
@@ -18,13 +18,12 @@ class Config:
         from app_ini import load_config
         conf = load_config('app.ini')
         del sys.modules['app_ini']
-        try:
+        if True:
             self.client_id = conf['client_id'].format(hexlify(unique_id()).decode("utf-8"))
             self.keepalive = conf['keepalive']
             # mqtt init client
             self.client = MQTTClient(self.client_id, conf['broker'], conf['port'],
-                                     conf['user'], conf['password'], self.keepalive)
-            self.client.set_callback(callback)
+                                        conf['user'], conf['password'], self.keepalive)
             # alarm topic
             self.max_sensor_count = conf['max_sensor_count']
             # current running values info
@@ -65,10 +64,10 @@ class Config:
             self.curr_house_alarm = ""
             self.time_last_set = 0
             self.debug = False
-            self.client = None
             self.need_reconnect = True
-        except Exception:
-            raise Exception
+            del conf
+        # except Exception:
+        #     raise Exception
 
     def del_default_on(self):
         for k in self.info:
@@ -94,15 +93,6 @@ class Config:
     def set_curr_datetime(self):
         year, month, day, hour, minute, second = utime.localtime()[:6]
         self.curr_datetime = b"%02d:%02d:%02d %02d.%02d.%d" % (hour, minute, second, day, month, year)
-
-    def client_init(self):
-        """ new init mqtt client"""
-        from app_ini import load_config
-        conf = load_config('app.ini')
-        del sys.modules['app_ini']
-        self.client = MQTTClient(self.client_id, conf['broker'], conf['port'],
-                                 conf['user'], conf['password'], self.keepalive)
-        self.client.set_callback(callback)
 
     def client_disconnect(self):
         try:

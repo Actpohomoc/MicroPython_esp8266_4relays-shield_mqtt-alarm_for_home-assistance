@@ -9,6 +9,7 @@ from alarmod import check_for_alarm, check_empty_curr_house_alarm, check_any_hor
 from publish import publish_debug_info, publish_state, publish_sensor_alarm, publish_debug_state
 from switchs import setup_pins
 import topics as tp
+import callbck as clb
 
 first_run = True
 
@@ -71,18 +72,18 @@ def connect_and_subscribe(wifi):
             return False  # return in prev func to connect to wait for wifi
     except OSError:
         return False  # return in prev func to connect to wait for wifi    #
-    print("ok mqtt {} at {}".format(CONFIG.broker, CONFIG.curr_datetime))
+    print("ok mqtt at {}".format(CONFIG.curr_datetime))
     return True
 
 
 def setup():
     #
-    for i, s in CONFIG.__dict__.items():
-        print("{} {}".format(i, s))
+    #for i, s in CONFIG.__dict__.items():
+    #    print("{} {}".format(i, s))
     #
     setup_pins()
     #
-
+    CONFIG.client.set_callback(clb.callback)
 
 def set_active_ap_if(active):
     ap_if = network.WLAN(network.AP_IF)
