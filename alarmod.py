@@ -115,4 +115,4 @@ def check_any_horn_activated_to_long():
                         try:
                             publish_state(3+i)
                         except Exception as e:
-                            CONFIG.check_for_keyboard_interrupt(e, 'check_any_horn_activated_to_long')
+                            CONFIG.check_for_keyboard_interrupt(e, 'lng')

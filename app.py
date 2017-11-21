@@ -5,7 +5,6 @@ from micropython import const
 import machine
 
 from loadconf import CONFIG, FUSED_VALUES
-import callbck
 from alarmod import check_for_alarm, check_empty_curr_house_alarm, check_any_horn_activated_to_long
 from publish import publish_debug_info, publish_state, publish_sensor_alarm, publish_debug_state
 from switchs import setup_pins
@@ -77,13 +76,12 @@ def connect_and_subscribe(wifi):
 
 
 def setup():
+    #
     for i, s in CONFIG.__dict__.items():
         print("{} {}".format(i, s))
     #
     setup_pins()
     #
-    CONFIG.client_init()
-    CONFIG.client.set_callback(callbck.callback)
 
 
 def set_active_ap_if(active):
@@ -129,7 +127,7 @@ def main_loop():
                 #utime.sleep(0.1)  # max_sensor_count=5 -> 1 sec delay for sensor
                 #
         except Exception as e:
-            if CONFIG.check_for_keyboard_interrupt(e, 'check_msg'):
+            if CONFIG.check_for_keyboard_interrupt(e, 'ch'):
                 return e
         #
         try:
@@ -137,7 +135,7 @@ def main_loop():
             for nr in range(1, 3):
                 check_for_alarm(nr)
         except Exception as e:
-            if CONFIG.check_for_keyboard_interrupt(e, 'check_for_alarm'):
+            if CONFIG.check_for_keyboard_interrupt(e, 'al'):
                 return e
         #
         if not CONFIG.need_reconnect:
@@ -148,7 +146,7 @@ def main_loop():
                     try:
                         publish_debug_state()
                     except Exception as e:
-                        if CONFIG.check_for_keyboard_interrupt(e, 'publish_debug_state'):
+                        if CONFIG.check_for_keyboard_interrupt(e, 'pds'):
                             return e
         #
         gc.collect()

@@ -69,11 +69,8 @@ def publish_debug_info(gc):
            'free': str(gc.mem_free()).encode("ascii"), 'datetime': CONFIG.curr_datetime}
     res = ujson.dumps(res)
     topic = topic_name(b"sensor", b"memory")
-    try:
-        CONFIG.client.publish(topic, res, True)
-    except Exception as e:
-        CONFIG.check_for_keyboard_interrupt(e)
     print("memory: {}".format(res))
+    CONFIG.client.publish(topic, res, True)
 
 
 def publish_sensor_alarm(current_value, nr):
