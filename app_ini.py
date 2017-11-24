@@ -14,7 +14,7 @@ def load_config(conf_ini, conf_default=None):
     try:
         with open(conf_ini) as f:
             conf_new = json.loads(f.read())
-        print("Load conf from " + conf_ini)
+        print("Load conf from {}".format(conf_ini))
     except (OSError, ValueError):
         if conf_default is not None:
             print("Can't load {} load default".format(conf_ini))
