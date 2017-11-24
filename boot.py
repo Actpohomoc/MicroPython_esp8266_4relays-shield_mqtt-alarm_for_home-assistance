@@ -1,8 +1,8 @@
 import esp
 esp.osdebug(None)
-del esp
+import wifis as w
+w.set_active_ap_if(True)
 import webrepl
 webrepl.start()
-import wifis as w
 w.start_wifi()
-
+webrepl.start()

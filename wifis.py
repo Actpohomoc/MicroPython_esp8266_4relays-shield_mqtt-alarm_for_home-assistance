@@ -1,7 +1,7 @@
 # import os and load settings from wifis.ini file
 # we create the list with dict {'ssid':,'psk'} with all possible wifi networks
-# the program goes thrue the list and tries to connect to the wifi
-# if ok then return if not - read the file again (maybe already change by webrepl
+# program tries to connect to each wifi from the list
+# if ok then return if not - read the file again (it maybe already changed by webrepl)
 from utime import sleep
 import ujson as json
 import network
@@ -21,8 +21,8 @@ def load_config():
     except Exception:
         print("Couldn't load from {}: {}".format(wifis_ini, Exception))
     conf = [
-        {"ssid": "ssid1", "psk": 'BigBrotherPassword345#@!'},
-        {"ssid": "ssid2", "psk": 'LittleBrotherPassword345#@!!'},
+        {"ssid": "sid1", "psk": 'pass1'},
+        {"ssid": "sid2", "psk": 'pass2'},
     ]
     save_default_ini(conf)
     return conf
@@ -78,7 +78,7 @@ def connect_wifi(sid, psk, wifi=None):
 
 
 def start_wifi(wifi=None):
-    """ """
+    """ start wifi connecting to APs in wifis.ini """
     if wifi is None:
         wifi = network.WLAN(network.STA_IF)
     # until wifi connected
@@ -92,6 +92,13 @@ def start_wifi(wifi=None):
             sleep(time_to_delay)
     # ip info
     print('wifi is {}: NetConf: {}'.format(get_wifi_status(wifi), wifi.ifconfig()))
+
+
+def set_active_ap_if(active=True):
+    """ set active local AP """
+    ap_if = network.WLAN(network.AP_IF)
+    if ap_if.active() != active:
+        ap_if.active(active)
 
 
 def get_wifi_status(wifi=None):
