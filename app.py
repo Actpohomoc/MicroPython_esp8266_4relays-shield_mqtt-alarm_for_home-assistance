@@ -90,6 +90,7 @@ def setup():
 
 def main_loop():
     wifi = network.WLAN(network.STA_IF)
+    curr_wifi = 0  # use to select next wifi network from wifis.ini
     print(wifi.ifconfig())
     ap_if = network.WLAN(network.AP_IF)
     status_ok = network.STAT_GOT_IP
@@ -100,6 +101,11 @@ def main_loop():
             # save to info file that we lost wifi
             if not ap_if.active():
                 ap_if.active(True)
+            if not wifi.status() == network.STAT_CONNECTING:
+                # we need to start reconnect to the wifi
+                import wifis
+                curr_wifi = wifis.connect_next_wifi(curr_wifi, wifi)
+                #
             mcc = 0
             while mcc < const(5):  # 1 sec to check wifi
                 mcc += 1
@@ -117,7 +123,7 @@ def main_loop():
                 #  ok
                 CONFIG.need_reconnect = False
                 #  only now
-                ap_if.active(False)
+                #  ap_if.active(False)
         #
         mcc = 0
         try:
