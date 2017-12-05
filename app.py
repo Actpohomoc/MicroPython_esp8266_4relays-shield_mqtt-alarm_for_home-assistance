@@ -30,8 +30,10 @@ def connect_and_subscribe(wifi):
             CONFIG.client.subscribe(tp.get_debug_topic(CONFIG.client_id))
             CONFIG.client.subscribe(tp.get_alarm_set_topic(CONFIG.client_id))
             CONFIG.client.subscribe(tp.get_alarm_topic(CONFIG.client_id))
-            for t in range(2):
-                utime.sleep(1)
+            publish_debug_state()
+            utime.sleep(1)
+            for t in range(5):
+                utime.sleep(0.2)
                 CONFIG.client.check_msg()
             utime.sleep(1)
             # ----------------------------------------------------
@@ -127,7 +129,7 @@ def main_loop():
         #
         mcc = 0
         try:
-            while not CONFIG.need_reconnect and mcc < const(100):
+            while not CONFIG.need_reconnect and mcc < const(20):
                 mcc += 1
                 CONFIG.client.check_msg()
                 # utime.sleep(0.1)  # max_sensor_count=5 -> 1 sec delay for sensor
@@ -159,7 +161,7 @@ def main_loop():
         gc.collect()
         #
         if not CONFIG.need_reconnect:
-            if utime.time() > debug_at + CONFIG.keepalive:
+            if utime.time() > debug_at + int(CONFIG.keepalive/2):
                 try:
                     publish_debug_info(gc)
                     debug_at = utime.time()

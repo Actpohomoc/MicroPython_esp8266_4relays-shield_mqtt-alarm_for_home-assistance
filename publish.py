@@ -63,12 +63,17 @@ def publish_config():
 
 
 def publish_debug_info(gc):
+    if CONFIG.debug:
+        import stats_api
+        a = stats_api.Handler()
+        res = a.get()
+    else:
+        res = {'gc': {'mem_alloc': gc.mem_alloc(), 'mem_free': gc.mem_free()}}
     CONFIG.set_curr_datetime()
-    res = {'alloc': str(gc.mem_alloc()).encode("ascii"),
-           'free': str(gc.mem_free()).encode("ascii"), 'datetime': CONFIG.curr_datetime}
-    res = ujson.dumps(res)
+    res['datetime'] = CONFIG.curr_datetime
+    res = ujson.dumps(res).encode('ascii')
     topic = tp.get_sensor_memory_topic(CONFIG.client_id)
-    print("memory: {}".format(res))
+    print("info: {}".format(res))
     CONFIG.client.publish(topic, res, True)
 
 

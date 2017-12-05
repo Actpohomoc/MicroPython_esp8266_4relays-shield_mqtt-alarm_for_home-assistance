@@ -2,11 +2,12 @@ from loadconf import CONFIG
 
 
 def setup_pins():
-    for nr in range(1, 5):
-        if CONFIG.info['default_on{0}'.format(nr)]:
-            switch_on(nr)
+    # setting the pins by defaults
+    for nr, dv in enumerate(CONFIG.defaults_on.split(',')):  # "defaults_on": "0,0,0,0"
+        if dv == "1":
+            switch_on(nr+1)
         else:
-            switch_off(nr)
+            switch_off(nr+1)
     # del unused default_on info
     CONFIG.del_default_on()
 
@@ -25,6 +26,5 @@ def switch_off(nr):
 
 def switch_on_off(nr, new_val):
     pin = CONFIG.info['relay_pin{}'.format(nr)]
-    if CONFIG.debug:
-        print("before channel {} pin={} => {}".format(nr, pin.value(), new_val))
+    print("before channel {} pin={} => {}".format(nr, pin.value(), new_val))
     pin.value(new_val)

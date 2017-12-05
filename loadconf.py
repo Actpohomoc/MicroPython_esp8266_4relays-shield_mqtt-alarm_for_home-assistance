@@ -18,6 +18,8 @@ class Config:
         from app_ini import load_config
         conf = load_config('app.ini')
         del sys.modules['app_ini']
+        # debug info from start always
+        self.debug = conf.get('debug', True)
 
         self.client_id = conf['client_id'].format(hexlify(unique_id()).decode("utf-8"))
         self.keepalive = conf['keepalive']
@@ -33,6 +35,7 @@ class Config:
         for n, rn in enumerate(l_pins):
             self.info['relay_pin{}'.format(n + 1)] = Pin(int(rn), Pin.OUT)
         #
+        self.defaults_on = conf['defaults_on']
         self.sensor_value = []
         self.sensor_count = []
         #
@@ -44,10 +47,6 @@ class Config:
             # we have to put current value
             self.sensor_value.append(pin.value())
             self.sensor_count.append(0)
-        #
-        l_pins = conf['defaults_on'].split(',')
-        for n, rn in enumerate(l_pins):
-            self.info['default_on{}'.format(n + 1)] = False
         # based of pin number 4
         self.info['fused_values'] = {'{}1'.format(conf['fused_pin']): False, '{}2'.format(conf['fused_pin']): False}
         #
@@ -63,14 +62,11 @@ class Config:
         self.alarm_home_trig_time = conf['alarm_home_trig_time']
         self.curr_house_alarm = ""
         self.time_last_set = 0
-        self.debug = False
         self.need_reconnect = True
         del conf
 
     def del_default_on(self):
-        for k in self.info:
-            if 'default_on' in k:
-                del (self.info[k])
+        del self.defaults_on
 
     def get_ntp_current_datetime(self):
         try:
@@ -115,3 +111,4 @@ class Config:
 
 # load new object that will imported in all modules
 CONFIG = Config()
+
