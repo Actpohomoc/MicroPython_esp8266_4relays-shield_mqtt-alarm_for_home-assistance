@@ -8,15 +8,16 @@ import network
 
 wifis_ini = "wifis.ini"
 time_to_delay = 5
-time_to_delay_retries = 1
-times = 12
+time_to_delay_retries = 0.2
+times = 10
 
 
-def load_config():
+def load_config(show_info=True):
     try:
         with open(wifis_ini) as f:
             conf_new = json.loads(f.read())
-            print("Loaded conf from {}".format(wifis_ini))
+            if show_info:
+                print("Loaded conf from {}".format(wifis_ini))
             return conf_new
     except Exception:
         print("Couldn't load from {}: {}".format(wifis_ini, Exception))
@@ -53,6 +54,20 @@ def wifi_is_connected(wifi=None):
     if wifi is None:
         wifi = network.WLAN(network.STA_IF)
     return wifi.isconnected() and wifi.status() == network.STAT_GOT_IP
+
+
+def connect_next_wifi(curr_wifi, wifi=None):
+    if wifi is None:
+        wifi = network.WLAN(network.STA_IF)
+    #
+    conf = load_config(False)  # [{ssid, psk},]
+    # use next curr_wifi
+    if curr_wifi >= len(conf)-1:
+        curr_wifi = 0
+    else:
+        curr_wifi += 1
+    connect_wifi(conf[curr_wifi]['ssid'], conf[curr_wifi]['psk'], wifi)
+    return curr_wifi
 
 
 def connect_wifi(sid, psk, wifi=None):
