@@ -94,15 +94,16 @@ def main_loop():
     wifi = network.WLAN(network.STA_IF)
     curr_wifi = 0  # use to select next wifi network from wifis.ini
     print(wifi.ifconfig())
-    ap_if = network.WLAN(network.AP_IF)
     status_ok = network.STAT_GOT_IP
     CONFIG.need_reconnect = True
     debug_at = 0
     while True:
-        if not wifi.status() == status_ok:
+        if wifi.status() == status_ok:
+            # turn off local wifi if all ok
+            set_active_ap_if(False)
+        else:
             # save to info file that we lost wifi
-            if not ap_if.active():
-                ap_if.active(True)
+            set_active_ap_if(True)
             if not wifi.status() == network.STAT_CONNECTING:
                 # we need to start reconnect to the wifi
                 import wifis
@@ -189,8 +190,9 @@ def set_active_ap_if(active):
     ap_if = network.WLAN(network.AP_IF)
     if ap_if.active() != active:
         ap_if.active(active)
-        import webrepl
-        webrepl.start()
+        if active:
+            import webrepl
+            webrepl.start()
 
 
 def save_teardown():
